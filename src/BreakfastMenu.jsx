@@ -5,34 +5,26 @@ const FOOD_DATA = [
   {
     id: "dosa",
     name: "Dosa",
-    emoji: "🫓",
     srcIcon:
       "https://res.cloudinary.com/dvprlv7uy/image/upload/v1772972836/dosa_rfk9gb.png",
     storyVideo:
       "https://res.cloudinary.com/dvprlv7uy/video/upload/q_auto,f_auto/v1772972922/dosa-story_okxjkg.mp4",
     cookingVideo:
       "https://res.cloudinary.com/dvprlv7uy/video/upload/q_auto,f_auto/v1772972922/dosa_bfd9jb.mp4",
-    hasSteam: true,
-    cx: "48%",
-    cy: "46%",
-    rotate: "-4deg",
   },
   {
     id: "idly",
     name: "Idly",
-    emoji: "🍚",
     srcIcon:
       "https://res.cloudinary.com/dvprlv7uy/image/upload/v1772972836/idly_smpqa1.png",
     storyVideo:
       "https://res.cloudinary.com/dvprlv7uy/video/upload/q_auto,f_auto/v1772972923/idly-story_z78nva.mp4",
     cookingVideo:
       "https://res.cloudinary.com/dvprlv7uy/video/upload/q_auto,f_auto/v1772972924/idly_t4h1nj.mp4",
-    hasSteam: true,
   },
   {
     id: "vada",
     name: "Vada",
-    emoji: "🍩",
     srcIcon:
       "https://res.cloudinary.com/dvprlv7uy/image/upload/v1772972837/vada_xuvin9.png",
     storyVideo:
@@ -43,7 +35,6 @@ const FOOD_DATA = [
   {
     id: "pongal",
     name: "Pongal",
-    emoji: "🥣",
     srcIcon:
       "https://res.cloudinary.com/dvprlv7uy/image/upload/v1772972836/pongal_wns13u.png",
     storyVideo:
@@ -54,7 +45,6 @@ const FOOD_DATA = [
   {
     id: "tea",
     name: "Tea",
-    emoji: "☕",
     srcIcon:
       "https://res.cloudinary.com/dvprlv7uy/image/upload/v1772972836/tea_w6a2pq.png",
     storyVideo:
@@ -65,6 +55,24 @@ const FOOD_DATA = [
 ];
 
 function ModalVideoPlayer({ food, onClose }) {
+
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+
+    v.muted = false;
+    v.volume = 1;
+
+    const playPromise = v.play();
+
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {});
+    }
+
+  }, []);
+
   const handleEnd = () => {
     setTimeout(onClose, 2000);
   };
@@ -84,16 +92,14 @@ function ModalVideoPlayer({ food, onClose }) {
         exit={{ scale: 0.9 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="close-btn" onClick={onClose}>
-          ✕
-        </button>
+        <button className="close-btn" onClick={onClose}>✕</button>
 
         <video
+          ref={videoRef}
           src={food.cookingVideo}
-          autoPlay
           controls
           playsInline
-          preload="metadata"
+          preload="auto"
           className="modal-video"
           onEnded={handleEnd}
         />
@@ -103,6 +109,7 @@ function ModalVideoPlayer({ food, onClose }) {
 }
 
 function StorySection({ food, isActive, isModalOpen, onDishClick }) {
+
   const videoRef = useRef(null);
 
   useEffect(() => {
@@ -118,6 +125,7 @@ function StorySection({ food, isActive, isModalOpen, onDishClick }) {
 
   return (
     <section id={food.id} className="scroll-section">
+
       <video
         ref={videoRef}
         src={food.storyVideo}
@@ -131,20 +139,26 @@ function StorySection({ food, isActive, isModalOpen, onDishClick }) {
       <div className="story-content">
         <h2>{food.name}</h2>
 
-        <div className="dish-icon-container" onClick={() => onDishClick(food)}>
+        <div
+          className="dish-icon-container"
+          onClick={() => onDishClick(food)}
+        >
           <img src={food.srcIcon} alt={food.name} />
           <div className="watch-btn-hint">▶ Watch Cooking</div>
         </div>
       </div>
+
     </section>
   );
 }
 
 export default function BreakfastMenu() {
+
   const [activeFoodModal, setActiveFoodModal] = useState(null);
   const [visibleSection, setVisibleSection] = useState("hero");
 
   useEffect(() => {
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -156,18 +170,20 @@ export default function BreakfastMenu() {
       { threshold: 0.4 }
     );
 
-    document.querySelectorAll(".scroll-section").forEach((s) => observer.observe(s));
+    document
+      .querySelectorAll(".scroll-section")
+      .forEach((s) => observer.observe(s));
 
     return () => observer.disconnect();
+
   }, []);
 
   return (
     <div className="story-container">
-      {/* HERO SECTION */}
+
+      {/* HERO */}
 
       <section id="hero" className="scroll-section">
-
-        {/* FIXED HERO VIDEO */}
 
         <video
           src="https://res.cloudinary.com/dvprlv7uy/video/upload/q_auto,f_auto/v1772972921/banana_leaf_lqx5iy.mp4"
@@ -183,9 +199,10 @@ export default function BreakfastMenu() {
           <h1>Ammaas Tiffin</h1>
           <p>Made with Granny's Love</p>
         </div>
+
       </section>
 
-      {/* FOOD STORY SECTIONS */}
+      {/* FOOD SECTIONS */}
 
       {FOOD_DATA.map((food) => (
         <StorySection
@@ -207,6 +224,7 @@ export default function BreakfastMenu() {
           />
         )}
       </AnimatePresence>
+
     </div>
   );
 }
